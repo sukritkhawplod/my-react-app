@@ -1,0 +1,42 @@
+name: CI Pipeline
+
+# สั่งให้ทำงานเมื่อมีการ push หรือ pull request มาที่ branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ชื่องาน
+  build-and-test:
+    # ใช้ระบบปฏิบัติการอะไร
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout โค้ด
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. ตั้งค่า Node.js (ใช้เวอร์ชัน 20 ที่เป็น LTS)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm' # สั่งให้ cache npm dependencies เพื่อความเร็ว
+
+      # 3. ติดตั้ง Dependencies (ใช้ 'npm ci' จะเร็วกว่า 'npm install' ใน CI)
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. รัน Lint (ตรวจสอบคุณภาพโค้ด ตามที่คุณระบุ)
+      - name: Run ESLint
+        run: npm run lint
+
+      # 5. รัน Tests (รันเทสที่คุณเขียน ตามที่คุณระบุ)
+      - name: Run Tests
+        run: npm run test
+
+      # 6. บิวด์โปรเจกต์ (ทดสอบว่าบิวด์ผ่านหรือไม่)
+      - name: Build project
+        run: npm run build
